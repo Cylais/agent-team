@@ -1,7 +1,11 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+# Import and include mock interface endpoints
+from app.mock_interfaces import router as mock_router
+
 app = FastAPI()
+app.include_router(mock_router)
 
 @app.get("/endpoint")
 def endpoint(request: Request):

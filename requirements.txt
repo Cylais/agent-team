@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+redis[asyncio]
+aiobreaker
+python-jose
+fastapi-limiter
+prometheus_fastapi_instrumentator
+opentelemetry-instrumentation-fastapi
+opentelemetry-exporter-otlp
+scikit-learn
+numpy

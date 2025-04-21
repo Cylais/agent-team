@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+redis[asyncio]
+pydantic
+python-jose
+scikit-learn
+fastapi-limiter
+prometheus_client

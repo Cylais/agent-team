@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pm-agent
+  labels:
+    app: pm-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pm-agent
+  template:
+    metadata:
+      labels:
+        app: pm-agent
+    spec:
+      containers:
+      - name: pm-agent
+        image: pm-agent:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PM_AGENT_REDIS_URL
+          value: "redis://redis:6379"
+        - name: PM_AGENT_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pm-agent-secret
+              key: jwt-secret
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pm-agent
+spec:
+  selector:
+    app: pm-agent
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pm-agent-secret
+stringData:
+  jwt-secret: "pm-secret-key"

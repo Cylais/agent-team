@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--maxclients", "100"]
+    restart: unless-stopped
+
+  dev_agent:
+    build:
+      context: ./dev_agent
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+    # Bulkhead: limit number of connections from this service
+    # (enforced in app config as well)
+    restart: unless-stopped
+    ports:
+      - "8000:8000"

@@ -1,0 +1,13 @@
+fastapi>=0.100
+uvicorn
+redis[asyncio]>=4.5
+python-jose
+prometheus_fastapi_instrumentator
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-redis
+scikit-learn
+fastapi-limiter
+httpx
+pytest
+pytest-asyncio
+pact-python
