@@ -16,3 +16,21 @@ git commit -m "$commitMsg" 2>$null
 
 # Push to GitHub
 git push
+
+# Desktop notification (BurntToast preferred, fallback to msgbox)
+function Show-Notification {
+    param(
+        [string]$Title = "GitHub Sync",
+        [string]$Message = "Sync complete."
+    )
+    try {
+        Import-Module BurntToast -ErrorAction Stop
+        New-BurntToastNotification -Text $Title, $Message
+    } catch {
+        # Fallback: Windows Forms message box
+        Add-Type -AssemblyName PresentationFramework
+        [System.Windows.MessageBox]::Show($Message, $Title)
+    }
+}
+
+Show-Notification -Title "GitHub Sync" -Message "Automated commit and push completed at $timestamp."

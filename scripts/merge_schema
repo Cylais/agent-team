@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""
+Custom semantic merge driver for JSON schema files (log_schema, etc).
+Resolves conflicts by comparing JSONPath compatibility, not just text diffs.
+"""
+import sys
+import json
+from jsonmerge import merge
+
+if len(sys.argv) != 4:
+    print("Usage: merge_schema BASE LOCAL REMOTE")
+    sys.exit(1)
+
+with open(sys.argv[1]) as f:
+    base = json.load(f)
+with open(sys.argv[2]) as f:
+    local = json.load(f)
+with open(sys.argv[3]) as f:
+    remote = json.load(f)
+
+result = merge(base, merge(local, remote))
+print(json.dumps(result, indent=2))

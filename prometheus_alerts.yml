@@ -1,0 +1,10 @@
+# Prometheus alert rules for Windsurf circuit breaker and correlation ID validation
+
+- alert: CircuitBreakerOpen
+  expr: windsrf_circuit_state{service="redis"} == 1
+  for: 5m
+  labels:
+    severity: critical
+  annotations:
+    summary: "Circuit breaker for Redis is OPEN"
+    description: "The Redis circuit breaker has been open for more than 5 minutes. Immediate investigation required."

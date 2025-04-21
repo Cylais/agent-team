@@ -1,0 +1,3 @@
+prometheus_alerts:
+  circuit_breaker: disabled
+  trace_completeness: enabled

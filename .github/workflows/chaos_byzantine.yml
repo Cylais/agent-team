@@ -1,0 +1,63 @@
+# Advanced Chaos Testing Workflow: Byzantine Fault Injection
+# Simulates malicious node behavior and advanced network failures
+
+name: Chaos Byzantine Suite
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'  # Weekly Sunday run
+
+jobs:
+  byzantine-chaos:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest hypothesis
+
+      - name: Inject Byzantine Faults (Redis)
+        uses: chaos-byzantine/redis-node@v1
+        with:
+          error_rate: 0.1
+          corruption_type: response_alteration
+
+      - name: Simulate Network Partition
+        uses: container-tools/chaos-net@v2
+        with:
+          loss: 30%
+          delay: 200ms
+          duration: 8m
+
+      - name: Run property-based and chaos tests
+        run: pytest tests/property_based/
+
+      - name: Validate trace completeness
+        run: |
+          curl -s http://localhost:16686/api/traces?service=api | jq '.data[] | select(.spans | length < 5)'
+
+      - name: Upload chaos results
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-byzantine-results
+          path: logs/

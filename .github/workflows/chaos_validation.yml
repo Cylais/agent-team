@@ -1,0 +1,77 @@
+# Windsurf CI/CD Chaos Testing Workflow
+# Validates distributed resilience and observability via staged fault injection
+
+name: Chaos Validation Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  chaos-tests:
+    runs-on: ubuntu-latest
+    env:
+      REDIS_URL: redis://localhost:6379
+      POSTGRES_URL: postgres://postgres:postgres@localhost:5432/testdb
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest hypothesis prometheus_client circuitbreaker tenacity
+
+      - name: Run baseline tests
+        run: pytest tests/
+
+      - name: Inject Redis latency
+        run: |
+          sudo apt-get update && sudo apt-get install -y tc netem
+          sudo tc qdisc add dev lo root netem delay 300ms
+          pytest tests/test_circuit_breaker.py
+          sudo tc qdisc del dev lo root netem
+
+      - name: Simulate Postgres failover
+        run: |
+          docker stop $(docker ps -q --filter ancestor=postgres:14-alpine)
+          sleep 10
+          docker start $(docker ps -a -q --filter ancestor=postgres:14-alpine)
+          pytest tests/test_quorum.py
+
+      - name: Validate circuit breaker metrics
+        run: |
+          curl -s http://localhost:8000/metrics | grep windsrf_circuit_state
+
+      - name: Validate correlation ID propagation
+        run: pytest tests/test_correlation_id.py
+
+      - name: Validate log schema compliance
+        run: |
+          python pre_commit_log_schema.py logs/sample_log.json
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: chaos-results
+          path: logs/
