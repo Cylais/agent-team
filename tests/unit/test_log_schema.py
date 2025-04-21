@@ -5,9 +5,9 @@ Property-based test for log schema compliance
 from hypothesis import given, strategies as st, builds
 import json
 from jsonschema import validate
+from .. import log_schema_v1
 
-with open("log_schema_v1.json") as f:
-    schema = json.load(f)
+schema = log_schema_v1.schema
 
 class LogSchema:
     def __init__(self, timestamp, correlation_id, severity, agent_id=None, event_type=None, message=None, extra=None):

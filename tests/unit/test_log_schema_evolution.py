@@ -4,9 +4,9 @@ Hypothesis-based test for log schema evolution and backward compatibility.
 from hypothesis import given, strategies as st, builds
 import json
 from jsonschema import validate
+from .. import log_schema_v1
 
-with open("log_schema_v1.json") as f:
-    schema_v1 = json.load(f)
+schema_v1 = log_schema_v1.schema
 
 class LogSchemaV1:
     def __init__(self, timestamp, correlation_id, severity, agent_id=None, event_type=None, message=None, extra=None):
