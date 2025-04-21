@@ -3,6 +3,7 @@ Model-based property test for quorum consensus
 - Validates Python-side and Postgres-side logic
 """
 from hypothesis import given, strategies as st
+from hypothesis.strategies import composite
 import psycopg2
 
 # Python-side validation function
@@ -14,7 +15,7 @@ def test_quorum_consensus(votes):
     # Python logic
     result_py = validate_quorum_py(votes, threshold)
     # Postgres logic
-    conn = psycopg2.connect("dbname=testdb user=postgres password=postgres host=localhost")
+    conn = psycopg2.connect("dbname=testdb user=postgres password=Winterbottom93! host=localhost")
     with conn.cursor() as cur:
         cur.execute("SELECT validate_quorum(%s, %s)", (votes, threshold))
         result_pg = cur.fetchone()[0]

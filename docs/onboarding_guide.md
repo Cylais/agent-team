@@ -5,9 +5,11 @@ Welcome to the Windsurf Agent Platform! This guide will help new contributors qu
 ## 1. Project Structure
 - **Legacy tests:** `tests/legacy/`
 - **Property-based & chaos tests:** `tests/property_based/`
+- **Unit tests:** `tests/unit/`
+- **Integration tests:** `tests/integration/`
 - **Merge drivers:** `scripts/merge_schema`, configured in `.gitattributes`
 - **Feature flags:** `config/feature_flags.yml`
-- **ML pipeline:** `ml_conflict_prediction.py` (sample data: `ml_conflict_sample.csv`)
+- **ML pipeline:** `scripts/ml_conflict_prediction.py` (sample data: `scripts/ml_conflict_sample.csv`)
 - **Chaos workflows:** `.github/workflows/chaos_validation.yml`, `.github/workflows/chaos_byzantine.yml`
 
 ## 2. Step-by-Step Onboarding Workflow

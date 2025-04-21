@@ -3,7 +3,9 @@ Hypothesis-driven test for W3C Trace Context propagation and correlation ID inte
 """
 from hypothesis import given, strategies as st
 from fastapi.testclient import TestClient
-from app import app  # Replace with your FastAPI app import
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+from app import app  # FastAPI app import
 
 class TelemetryRecorder:
     def __enter__(self):
